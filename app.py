@@ -107,7 +107,7 @@ def predict(
         "FCVC": [float(fcvc)],
         "NCP": [float(ncp)],
         "SCC": [map_scc[scc]],
-        "SMOKE": [map_smoke[smoke)],
+        "SMOKE": [map_smoke[smoke]],
         "CH2O": [float(ch2o)],
         "family_history_with_overweight": [map_family[family]],
         "FAF": [float(faf)],
