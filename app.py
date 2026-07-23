@@ -30,6 +30,11 @@ map_calc = {
     "Always": 3,
 }
 
+map_favc = {
+    "no": 0,
+    "yes": 1
+}
+
 map_mtrans = {
     "Public_Transportation": 0,
     "Walking": 1,
@@ -38,12 +43,6 @@ map_mtrans = {
     "Bike": 4
 }
 
-map_caec = {
-    "no": 0,
-    "Sometimes": 1,
-    "Frequently": 2,
-    "Always": 3
-}
 
 map_gender = {
     "Female": 1,
@@ -89,7 +88,6 @@ def predict(
     favc,
     fcvc,
     ncp,
-    caec,
     smoke,
     ch2o,
     scc,
@@ -99,23 +97,23 @@ def predict(
     mtrans,
 ):
 
-    data = pd.DataFrame({
-        "Age": [float(age)],
-        "Gender": [map_gender[gender]],
-        "Height": [float(height)],
-        "Weight": [float(weight)],
-        "CALC": [map_alc[calc]],
-        "FAVC": [map_calc[favc]],
-        "FCVC": [float(fcvc)],
-        "NCP": [float(ncp)],
-        "SCC": [map_scc[scc]],
-        "SMOKE": [map_smoke[smoke]],
-        "CH2O": [float(ch2o)],
-        "family_history_with_overweight": [map_family[family]],
-        "FAF": [float(faf)],
-        "TUE": [float(tue)],
-        "MTRANS": [map_mtrans[mtrans]]
-    })
+  data = pd.DataFrame({
+    "Age": [float(age)],
+    "Gender": [map_gender[gender]],
+    "Height": [float(height)],
+    "Weight": [float(weight)],
+    "CALC": [map_calc[calc]],
+    "FAVC": [map_favc[favc]],
+    "FCVC": [float(fcvc)],
+    "NCP": [float(ncp)],
+    "SCC": [map_scc[scc]],
+    "SMOKE": [map_smoke[smoke]],
+    "CH2O": [float(ch2o)],
+    "family_history_with_overweight": [map_family[family]],
+    "FAF": [float(faf)],
+    "TUE": [float(tue)],
+    "MTRANS": [map_mtrans[mtrans]]
+})
 
     pred = model.predict(data)[0]
 
@@ -159,11 +157,7 @@ with gr.Blocks(theme=gr.themes.Soft(), title="Obesity Prediction System") as dem
         fcvc = gr.Slider(1, 3, step=0.1, label="Vegetable Consumption (FCVC)")
         ncp = gr.Slider(1, 4, step=0.5, label="Meals Per Day (NCP)")
 
-    with gr.Row():
-        caec = gr.Dropdown(
-            ["no", "Sometimes", "Frequently", "Always"],
-            label="Food Between Meals"
-        )
+ 
 
         smoke = gr.Radio(["yes", "no"], label="Smoking")
 
@@ -208,7 +202,6 @@ with gr.Blocks(theme=gr.themes.Soft(), title="Obesity Prediction System") as dem
             favc,
             fcvc,
             ncp,
-            caec,
             smoke,
             ch2o,
             scc,
