@@ -1,252 +1,226 @@
-import joblib
-import pandas as pd
+import os
 import gradio as gr
+import pandas as pd
+import joblib
 
-# ==========================================================
-# Load Model
-# ==========================================================
-try:
-    model = joblib.load("obesity_model.pkl")
-    model_loaded = True
-except Exception as e:
-    print(e)
-    model_loaded = False
+# ==========================================
+# Developed By : Parth
+# Roll No      : 241504
+# College      : PIET, Samalkha
+# ==========================================
+
+# Load model
+model = joblib.load("obesity_model.pkl")
+
+# =======================
+# Encoding Dictionaries
+# =======================
+
+map_alc = {
+    "no": 0,
+    "Sometimes": 1,
+    "Frequently": 2,
+    "Always": 3
+}
+
+map_calc = {
+    "no": 0,
+    "yes": 1
+}
+
+map_mtrans = {
+    "Public_Transportation": 0,
+    "Walking": 1,
+    "Automobile": 2,
+    "Motorbike": 3,
+    "Bike": 4
+}
+
+map_caec = {
+    "no": 0,
+    "Sometimes": 1,
+    "Frequently": 2,
+    "Always": 3
+}
+
+map_gender = {
+    "Female": 0,
+    "Male": 1
+}
+
+map_smoke = {
+    "no": 0,
+    "yes": 1
+}
+
+map_scc = {
+    "no": 0,
+    "yes": 1
+}
+
+map_family = {
+    "no": 0,
+    "yes": 1
+}
+
+prediction_map = {
+    0: "Normal Weight",
+    1: "Overweight Level I",
+    2: "Overweight Level II",
+    3: "Obesity Type I",
+    4: "Obesity Type II",
+    5: "Obesity Type III",
+    6: "Insufficient Weight"
+}
 
 
-# ==========================================================
+# =======================
 # Prediction Function
-# ==========================================================
-def predict_obesity(
-    age,
+# =======================
+
+def predict(
     gender,
+    age,
     height,
     weight,
-    calc,
+    family,
     favc,
     fcvc,
     ncp,
-    scc,
+    caec,
     smoke,
     ch2o,
-    family_history,
+    scc,
     faf,
     tue,
+    calc,
     mtrans,
 ):
 
-    if not model_loaded:
-        return "❌ Model could not be loaded."
+    data = pd.DataFrame({
+        "Age": [float(age)],
+        "Gender": [map_gender[gender]],
+        "Height": [float(height)],
+        "Weight": [float(weight)],
+        "CALC": [map_alc[calc]],
+        "FAVC": [map_calc[favc]],
+        "FCVC": [float(fcvc)],
+        "NCP": [float(ncp)],
+        "SCC": [map_scc[scc]],
+        "SMOKE": [map_smoke[smoke]],
+        "CH2O": [float(ch2o)],
+        "family_history_with_overweight": [map_family[family]],
+        "FAF": [float(faf)],
+        "TUE": [float(tue)],
+        "CAEC": [map_caec[caec]],
+        "MTRANS": [map_mtrans[mtrans]]
+    })
 
-    data = pd.DataFrame([{
-        "Age": age,
-        "Gender": gender,
-        "Height": height,
-        "Weight": weight,
-        "CALC": calc,
-        "FAVC": favc,
-        "FCVC": fcvc,
-        "NCP": ncp,
-        "SCC": scc,
-        "SMOKE": smoke,
-        "CH2O": ch2o,
-        "family_history_with_overweight": family_history,
-        "FAF": faf,
-        "TUE": tue,
-        "MTRANS": mtrans
-    }])
+    pred = model.predict(data)[0]
 
-    prediction = model.predict(data)[0]
+    if isinstance(pred, str):
+        return pred.replace("_", " ")
 
-    if hasattr(model, "predict_proba"):
-        confidence = max(model.predict_proba(data)[0]) * 100
-        return f"""
-### Prediction
-
-**Obesity Level:** {prediction}
-
-**Confidence:** {confidence:.2f}%
-"""
-    else:
-        return f"### Prediction\n\n**Obesity Level:** {prediction}"
+    return prediction_map.get(pred, str(pred))
 
 
-# ==========================================================
-# Dashboard
-# ==========================================================
-with gr.Blocks(
-    theme=gr.themes.Soft(
-        primary_hue="blue",
-        secondary_hue="emerald"
-    ),
-    title="Obesity Prediction Dashboard"
-) as demo:
+# =======================
+# Interface
+# =======================
+
+with gr.Blocks(theme=gr.themes.Soft(), title="Obesity Prediction System") as demo:
 
     gr.Markdown("""
-# 🏥 Obesity Prediction Dashboard
+# 🏥 Obesity Level Prediction System
 
-### Machine Learning Based Health Assessment
+### Machine Learning Based Health Prediction
 
-Predict obesity category using lifestyle and physical parameters.
+**Developed By:** Parth
 
----
-**Developed by:** **Vansh**  
-**Roll No.:** **241047**
----
+**Roll No:** 241504
+
+**College:** PIET, Samalkha
 """)
 
     with gr.Row():
+        gender = gr.Radio(["Male", "Female"], label="Gender")
+        age = gr.Number(label="Age")
 
-        with gr.Column():
+    with gr.Row():
+        height = gr.Number(label="Height (meters)")
+        weight = gr.Number(label="Weight (kg)")
 
-            age = gr.Number(label="Age", value=25)
+    with gr.Row():
+        family = gr.Radio(["yes", "no"], label="Family History")
+        favc = gr.Radio(["yes", "no"], label="Frequent High Calorie Food")
 
-            gender = gr.Dropdown(
-                ["Male", "Female"],
-                value="Male",
-                label="Gender"
-            )
+    with gr.Row():
+        fcvc = gr.Slider(1, 3, step=0.1, label="Vegetable Consumption (FCVC)")
+        ncp = gr.Slider(1, 4, step=0.5, label="Meals Per Day (NCP)")
 
-            height = gr.Number(label="Height (meters)", value=1.75)
+    with gr.Row():
+        caec = gr.Dropdown(
+            ["no", "Sometimes", "Frequently", "Always"],
+            label="Food Between Meals"
+        )
 
-            weight = gr.Number(label="Weight (kg)", value=72)
+        smoke = gr.Radio(["yes", "no"], label="Smoking")
 
-            calc = gr.Dropdown(
-                ["no", "Sometimes", "Frequently", "Always"],
-                value="Sometimes",
-                label="Alcohol Consumption (CALC)"
-            )
+    with gr.Row():
+        ch2o = gr.Slider(1, 3, step=0.1, label="Water Intake")
+        scc = gr.Radio(["yes", "no"], label="Calories Monitoring")
 
-            favc = gr.Dropdown(
-                ["yes", "no"],
-                value="yes",
-                label="High Calorie Food (FAVC)"
-            )
+    with gr.Row():
+        faf = gr.Slider(0, 3, step=0.1, label="Physical Activity")
+        tue = gr.Slider(0, 2, step=0.1, label="Technology Usage")
 
-            fcvc = gr.Slider(
-                1,
-                3,
-                value=2,
-                step=1,
-                label="Vegetable Consumption (FCVC)"
-            )
+    with gr.Row():
+        calc = gr.Dropdown(
+            ["no", "Sometimes", "Frequently", "Always"],
+            label="Alcohol Consumption"
+        )
 
-            ncp = gr.Slider(
-                1,
-                4,
-                value=3,
-                step=1,
-                label="Meals per Day (NCP)"
-            )
+        mtrans = gr.Dropdown(
+            [
+                "Public_Transportation",
+                "Walking",
+                "Automobile",
+                "Motorbike",
+                "Bike"
+            ],
+            label="Transportation"
+        )
 
-        with gr.Column():
+    output = gr.Textbox(label="Prediction")
 
-            scc = gr.Dropdown(
-                ["yes", "no"],
-                value="no",
-                label="Calories Monitoring (SCC)"
-            )
-
-            smoke = gr.Dropdown(
-                ["yes", "no"],
-                value="no",
-                label="Smoking"
-            )
-
-            ch2o = gr.Slider(
-                1,
-                3,
-                value=2,
-                step=0.5,
-                label="Water Intake (CH2O)"
-            )
-
-            family = gr.Dropdown(
-                ["yes", "no"],
-                value="yes",
-                label="Family History"
-            )
-
-            faf = gr.Slider(
-                0,
-                3,
-                value=1,
-                step=0.5,
-                label="Physical Activity (FAF)"
-            )
-
-            tue = gr.Slider(
-                0,
-                2,
-                value=1,
-                step=0.5,
-                label="Technology Usage (TUE)"
-            )
-
-            mtrans = gr.Dropdown(
-                [
-                    "Automobile",
-                    "Bike",
-                    "Motorbike",
-                    "Public_Transportation",
-                    "Walking"
-                ],
-                value="Walking",
-                label="Transportation"
-            )
-
-    predict_btn = gr.Button(
-        "🔍 Predict Obesity Level",
+    gr.Button(
+        "Predict Obesity Level",
         variant="primary"
-    )
-
-    output = gr.Markdown()
-
-    predict_btn.click(
-        predict_obesity,
+    ).click(
+        fn=predict,
         inputs=[
-            age,
             gender,
+            age,
             height,
             weight,
-            calc,
+            family,
             favc,
             fcvc,
             ncp,
-            scc,
+            caec,
             smoke,
             ch2o,
-            family,
+            scc,
             faf,
             tue,
+            calc,
             mtrans
         ],
         outputs=output
     )
 
-    gr.Examples(
-        examples=[
-            [25,"Male",1.75,72,"Sometimes","yes",2,3,"no","no",2,"yes",1,1,"Walking"],
-            [35,"Female",1.60,95,"Frequently","yes",1,4,"no","no",1.5,"yes",0,2,"Automobile"],
-            [19,"Male",1.82,68,"no","no",3,3,"yes","no",3,"no",3,0.5,"Bike"]
-        ],
-        inputs=[
-            age,
-            gender,
-            height,
-            weight,
-            calc,
-            favc,
-            fcvc,
-            ncp,
-            scc,
-            smoke,
-            ch2o,
-            family,
-            faf,
-            tue,
-            mtrans
-        ]
-    )
-
 if __name__ == "__main__":
-    demo.launch(server_name="0.0.0.0", server_port=7860)
+    demo.launch(
+        server_name="0.0.0.0",
+        server_port=int(os.environ.get("PORT", 7860))
+    )
