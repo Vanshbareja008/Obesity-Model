@@ -25,7 +25,9 @@ map_alc = {
 
 map_calc = {
     "no": 0,
-    "yes": 1
+    "Sometimes": 1,
+    "Frequently": 2,
+    "Always": 3,
 }
 
 map_mtrans = {
@@ -44,8 +46,8 @@ map_caec = {
 }
 
 map_gender = {
-    "Female": 0,
-    "Male": 1
+    "Female": 1,
+    "Male": 0
 }
 
 map_smoke = {
@@ -134,9 +136,9 @@ with gr.Blocks(theme=gr.themes.Soft(), title="Obesity Prediction System") as dem
 
 ### Machine Learning Based Health Prediction
 
-**Developed By:** Parth
+**Developed By:** Vansh
 
-**Roll No:** 241504
+**Roll No:** 241047
 
 **College:** PIET, Samalkha
 """)
