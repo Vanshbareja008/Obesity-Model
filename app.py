@@ -4,8 +4,8 @@ import pandas as pd
 import joblib
 
 # ==========================================
-# Developed By : Parth
-# Roll No      : 241504
+# Developed By : Vansh
+# Roll No      : 241047
 # College      : PIET, Samalkha
 # ==========================================
 
@@ -112,7 +112,6 @@ def predict(
         "family_history_with_overweight": [map_family[family]],
         "FAF": [float(faf)],
         "TUE": [float(tue)],
-        "CAEC": [map_caec[caec]],
         "MTRANS": [map_mtrans[mtrans]]
     })
 
