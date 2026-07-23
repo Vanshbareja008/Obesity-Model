@@ -97,23 +97,23 @@ def predict(
     mtrans,
 ):
 
-  data = pd.DataFrame({
-    "Age": [float(age)],
-    "Gender": [map_gender[gender]],
-    "Height": [float(height)],
-    "Weight": [float(weight)],
-    "CALC": [map_calc[calc]],
-    "FAVC": [map_favc[favc]],
-    "FCVC": [float(fcvc)],
-    "NCP": [float(ncp)],
-    "SCC": [map_scc[scc]],
-    "SMOKE": [map_smoke[smoke]],
-    "CH2O": [float(ch2o)],
-    "family_history_with_overweight": [map_family[family]],
-    "FAF": [float(faf)],
-    "TUE": [float(tue)],
-    "MTRANS": [map_mtrans[mtrans]]
-})
+    data = pd.DataFrame({
+        "Age": [float(age)],
+        "Gender": [map_gender[gender]],
+        "Height": [float(height)],
+        "Weight": [float(weight)],
+        "CALC": [map_calc[calc]],
+        "FAVC": [map_favc[favc]],
+        "FCVC": [float(fcvc)],
+        "NCP": [float(ncp)],
+        "SCC": [map_scc[scc]],
+        "SMOKE": [map_smoke[smoke)],
+        "CH2O": [float(ch2o)],
+        "family_history_with_overweight": [map_family[family]],
+        "FAF": [float(faf)],
+        "TUE": [float(tue)],
+        "MTRANS": [map_mtrans[mtrans]]
+    })
 
     pred = model.predict(data)[0]
 
